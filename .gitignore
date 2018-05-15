@@ -1,3 +1,7 @@
+# Mac OS specific file
+.DS_Store
+# executable files
+draw
 # Prerequisites
 *.d
 
