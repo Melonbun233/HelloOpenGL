@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
-#include "shader.h"
+#include "../include/shader.h"
 
 using namespace std;
 
@@ -52,7 +52,7 @@ int main(){
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	//create shader program
-	Shader shader("vshader.vs", "fshader.fs");
+	Shader shader("shader/vshader.vs", "shader/fshader.fs");
 
 	//create VAO
 	unsigned int VAO, VBO, EBO;
