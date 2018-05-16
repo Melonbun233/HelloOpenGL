@@ -30,6 +30,13 @@ unsigned int indices[] = {
 	0, 2, 1
 };
 
+float texCoords[] = {
+	0.0f, 0.5f,	//top
+	0.0f, -0.5f,// bottom
+	-0.5f, 0.0f,// left
+	0.5f, 0.0f	// right
+}
+
 int main(){
 	//glfw initiate and configure
 	glfwInit();
@@ -91,10 +98,9 @@ int main(){
 	glEnableVertexAttribArray(1);
 
 	//unbind VAO, VBO and EBO, optional
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
-	float radian = 0; //used for ratating the squre
 	//render loop
 	while(!glfwWindowShouldClose(window))
 	{
@@ -103,23 +109,12 @@ int main(){
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//render the triangle
-		shader.use();
 		glBindVertexArray(VAO);
 
-		//rebuffer changed data
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+		//render the triangle
+		shader.use();
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		if (radian >= 2 * PI){
-			rotateSqr(vertices, 0, 0.5);
-			radian = 0;
-		} else {
-			radian += 0.01;
-			rotateSqr(vertices, radian, 0.5);
-		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
