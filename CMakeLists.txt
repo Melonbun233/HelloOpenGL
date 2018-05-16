@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
-project (HelloTriangle)
+project (HelloOpenGL)
 
 #Set output folder
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
@@ -10,10 +10,10 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build)
 include_directories(include)
 file(GLOB SOURCES "src/*.c*")
 
-add_executable(HelloTriangle ${SOURCES})
+add_executable(HelloOpenGL ${SOURCES})
 
 find_package(glfw3 3.2 REQUIRED)
-target_link_libraries(HelloTriangle glfw)
+target_link_libraries(HelloOpenGL glfw)
 
 
 
