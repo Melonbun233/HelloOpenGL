@@ -1,12 +1,14 @@
-#define GLFW_INCLUDE_GLCOREARB
-#define PI 3.14159265
-//#include <glad/glad.h>
+#include <cmath>
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <cmath>
+
 #include "../include/shader.h"
 
 using namespace std;
+
+#define PI 3.14159265
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -22,6 +24,7 @@ float vertices[] = {
 	-0.5f, 0.0f, 0.0f, 	0.0f, 0.0f, 1.0f, // left
 	0.5f, 0.0f, 0.0f, 	1.0f, 1.0f, 0.0f  // right
 };
+
 unsigned int indices[] = {
 	0, 1, 3,
 	0, 2, 1
@@ -51,8 +54,17 @@ int main(){
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	//initialize glad
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		cout << "Failed to initialize GLAD" << endl;
+		return -1;
+	}
+	
 	//create shader program
-	Shader shader("shader/vshader.vs", "shader/fshader.fs");
+	//the executable file is generated under /bin folder.
+	//however, shader files are under /src/shader folder
+	Shader shader("../src/shader/vshader.vs", "../src/shader/fshader.fs");
 
 	//create VAO
 	unsigned int VAO, VBO, EBO;

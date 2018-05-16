@@ -1,3 +1,6 @@
+#build and bin directories
+bin/
+build/
 # Mac OS specific file
 .DS_Store
 # executable files

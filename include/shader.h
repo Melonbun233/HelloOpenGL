@@ -1,6 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <glad/glad.h>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -66,7 +67,9 @@ public:
 			fShaderFile.close();
 			// convert stream into string
 			vertexCode = vShaderStream.str();
+			//cout << vertexCode << endl;
 			fragmentCode = fShaderStream.str();
+			//cout << fragmentCode << endl;
 		} catch (ifstream::failure e) {
 			cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << endl;
 		}
