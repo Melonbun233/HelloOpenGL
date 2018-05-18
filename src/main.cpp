@@ -9,7 +9,7 @@
 
 #include "../include/shader.h"
 #include "../include/stb_image.h"
-#include "data.cpp"
+#include "../include/data.h"
 
 using namespace std;
 using namespace glm;
@@ -17,6 +17,8 @@ using namespace glm;
 #define PI 3.14159265
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
+const char *v_shader_path = "../resources/shader/vshader.vs";
+const char *f_shader_path = "../resources/shader/fshader.fs";
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -24,13 +26,18 @@ void rotateSqr(float *vertices, float radian, float radius);
 void configTexture(const char *path, int texture);
 
 //field of view
-float FOV = 45.0;
+float FOV = 50.0;
 //value used for mixing two textures
 float mix_value = 0.2;
 float rotate_value = 0;
 
+extern float cube_vertices[];
+extern vec3 cube_pos[];
+
+
 int main(){
 	//glfw initiate and configure
+	//----------------initiate window and other stuffs-----------------//
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -61,9 +68,9 @@ int main(){
 	}
 	
 	//create shader program
-	//the executable file is generated under /bin folder.
-	//however, shader files are under /src/shader folder
-	Shader shader("../src/shader/vshader.vs", "../src/shader/fshader.fs");
+	//the executable file is generated under /bin directory.
+	//however, shader files are under ../resources/shader directory.
+	Shader shader(v_shader_path, f_shader_path);
 
 	//------------------------Vertices and Data-------------------------//
 	//create VAO
@@ -125,6 +132,11 @@ int main(){
 	shader.setMat4("view", view);
 	shader.setMat4("proj", proj);
 	mat4 rotation;
+
+	//--------------------------setting up a camera-------------------------//
+	vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f); //origin of the space
+	vec3 cameraDirection = normalize(cameraPos - cameraTarget);
 	//-------------------------rendering------------------------------------//
 	while(!glfwWindowShouldClose(window))
 	{
