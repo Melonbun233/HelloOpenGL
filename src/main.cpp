@@ -3,37 +3,31 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "../include/shader.h"
 #include "../include/stb_image.h"
+#include "data.cpp"
 
 using namespace std;
+using namespace glm;
 
 #define PI 3.14159265
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 800;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 void rotateSqr(float *vertices, float radian, float radius);
 void configTexture(const char *path, int texture);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-float vertices[] = {
-	//positions			//colors			// texture coords
-	 0.5f,  0.5f, 0.0f, 	1.0f, 0.0f, 0.0f,   1.0f, 1.0f,	// top right
-	 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,   1.0f, 0.0f,	// bottom right
-	-0.5f, -0.5f, 0.0f, 	0.0f, 0.0f, 1.0f,   0.0f, 0.0f,	// bottom left
-	-0.5f,  0.5f, 0.0f, 	1.0f, 1.0f, 0.0f,   0.0f, 1.0f 	// top right
-};
-
-unsigned int indices[] = {
-	0, 1, 3,
-	1, 2, 3
-};
-
+//field of view
+float FOV = 45.0;
 //value used for mixing two textures
 float mix_value = 0.2;
+float rotate_value = 0;
 
 int main(){
 	//glfw initiate and configure
@@ -73,31 +67,24 @@ int main(){
 
 	//------------------------Vertices and Data-------------------------//
 	//create VAO
-	unsigned int VAO, VBO, EBO;
+	unsigned int VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 
-		//---------------------VAO--------------------//
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, 
+		GL_STATIC_DRAW);
 
 	//vertex position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	//vertex color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+
+	//texture vertices
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 
 		(void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	//texture vertices
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 
-		(void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 
 	//unbind VAO, VBO and EBO, optional
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -119,13 +106,34 @@ int main(){
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
 
+	//-------------------------transformation--------------------------------//
+
+	//creating model matrix. used to transform local space to world space
+	//this is set in the rendering loop
+	// mat4 model;
+	// model = rotate(model, radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
+
+	//creating view matrix, used to transform world space to user view
+	mat4 view;
+	view = translate(view, vec3(0.0f, 0.0f, -3.0f));
+
+	//creating proejction matrix, used for perspective projection
+	mat4 proj;
+	proj = perspective(radians(FOV), float(SCR_WIDTH / SCR_HEIGHT), 0.1f, 100.0f);
+
+	//sent matrices to vertex shader
+	shader.setMat4("view", view);
+	shader.setMat4("proj", proj);
+	mat4 rotation;
 	//-------------------------rendering------------------------------------//
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
+		//enable depth test for 3d objects
+		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//render
 		glActiveTexture(GL_TEXTURE0);
@@ -133,10 +141,24 @@ int main(){
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		//configure shader
+
 		shader.setFloat("mix_value", mix_value);
 		shader.use();
+
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		rotation = rotate(rotation, radians(1.0f), vec3(0.5f, 1.0f, 0.0f));
+		//draw 10 cubes
+		for (int i = 0; i < 10 ; i ++) {
+			mat4 model;
+			model = translate(model, cube_pos[i]);
+			float angle = 20.0f * i;
+			model = rotate(model, radians(angle), vec3(1.0f, 0.3f, 0.5f));
+			model = model * rotation;
+			shader.setMat4("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -144,7 +166,6 @@ int main(){
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
 
 	glfwTerminate();
 	return 0;
@@ -158,6 +179,10 @@ void processInput(GLFWwindow *window){
 		mix_value += mix_value >= 1.0f ? 0 : 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		mix_value -= mix_value <= 0.0f ? 0 : 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		rotate_value += rotate_value >= 0.1 ? 0 : 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		rotate_value -= rotate_value <= -0.1 ? 0 : 0.01f;
 }
 
 //this callback function is called whenever the window size is changed
