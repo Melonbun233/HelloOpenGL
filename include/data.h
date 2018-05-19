@@ -1,7 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 //this file contains all data you may use in this project
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
 //this array contains 4 vertices that construct a squre
 //for each vertex, 

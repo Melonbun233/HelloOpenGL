@@ -2,12 +2,12 @@
 #define UTILS_H
 //this file contains all config functions used in this project, including the extern
 //variables that are used in main function.
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "stb_image.h"
 
  using namespace std;

@@ -1,11 +1,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <cmath>
-#include <glad/glad.h>
+#include "../include/glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
+#include "../include/glm/glm.hpp"
+#include "../include/glm/gtc/matrix_transform.hpp"
+#include "../include/glm/gtc/type_ptr.hpp"
 
 #include "../include/shader.h"
 #include "../include/config.h"
