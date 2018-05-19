@@ -59,7 +59,11 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height){
 //call back function whenever mouse is moved
 void mouse_callback(GLFWwindow *window, double x, double y){
 	//calculate difference mouse position from the last frame
-
+	if (MOUSE_FIRST){
+		MOUSE_FIRST = 0;
+		MOUSE_X = x;
+		MOUSE_Y = y;
+	}
 	float x_offset = x - MOUSE_X;
 	float y_offset = y - MOUSE_Y;
 	//update current position
@@ -79,16 +83,10 @@ void mouse_callback(GLFWwindow *window, double x, double y){
 		pitch = 89.0f;
 	//uodate camera direction
 	glm::vec3 front;
-	front.z = -cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	front.y = sin(glm::radians(pitch));
-	front.x = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 
-	if (MOUSE_FIRST){
-		MOUSE_FIRST = 0;
-		yaw = 0;
-		pitch = 0;
-		front = glm::vec3(0.0f, 0.0f ,-1.0f);
-	}
 	//std::cout << front.x << " " << front.y << " " << front.z << std::endl;
 	cameraFront = glm::normalize(front);
 

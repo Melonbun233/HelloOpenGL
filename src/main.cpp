@@ -53,7 +53,8 @@ vec3 cameraPos = vec3(0.0f, 0.0f, 5.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
 vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 //yaw: horizontal movement; pitch: vertical movement
-float yaw, pitch; //camera movement by mouse
+float yaw = -90.0f; //default yaw
+float pitch; //camera movement by mouse
 //walk speed when press wsad
 float camera_speed = 5.0f * delta_time;
 
