@@ -1,3 +1,5 @@
+#ifndef DATA_H
+#define DATA_H
 //this file contains all data you may use in this project
 #include <glm/glm.hpp>
 
@@ -82,3 +84,5 @@ glm::vec3 cube_pos[] = {
 	glm::vec3( 1.5f,  0.2f, -1.5f), 
 	glm::vec3(-1.3f,  1.0f, -1.5f) 
 };
+
+#endif
