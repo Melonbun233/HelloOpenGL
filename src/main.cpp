@@ -8,6 +8,7 @@
 #include "../include/glm/gtc/matrix_transform.hpp"
 #include "../include/glm/gtc/type_ptr.hpp"
 
+#include "../include/camera.h"
 #include "../include/shader.h"
 #include "../include/config.h"
 #include "../include/data.h"
@@ -18,8 +19,6 @@ using namespace glm;
 #define PI 3.14159265
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
-const float FOV_MAX = 45.0f;
-const float FOV_MIN = 1.0f;
 const char *v_shader_path = "../resources/shader/vshader.vs";
 const char *f_shader_path = "../resources/shader/fshader.fs";
 
@@ -29,37 +28,14 @@ float last_frame = 0.0f;	//time of the last frame
 
 //value used for mixing two textures
 float mix_value = 0.2;
-
-//--------------------------setting up mouse---------------------------//
-
-//mouse initial position, center of the screen
-int MOUSE_VERTICAL_INVERSE = 1;
-int MOUSE_HORIZONTAL_INVERSE = 0;
-int MOUSE_FIRST = 1; //mouse first time enter the screen
-//mouse sensitivity
-float MOUSE_VERTICAL_SENS = 0.05f;
-float MOUSE_HORIZONTAL_SENS = 0.05f;
-//mouse initial position
-float MOUSE_X = SCR_WIDTH / 2;
-float MOUSE_Y = SCR_HEIGHT / 2;
+GLboolean MOUSE_FIRST = 1; //mouse first time enter the screen
+float MOUSE_X, MOUSE_Y; //mouse's position
 //vertices data
 extern float cube_vertices[];
 extern vec3 cube_pos[];
 
-//--------------------------setting up a camera-------------------------//
-//field of view
-float FOV = 45.0;
-vec3 cameraPos = vec3(0.0f, 0.0f, 5.0f);
-vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
-vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
-//yaw: horizontal movement; pitch: vertical movement
-float yaw = -90.0f; //default yaw
-float pitch; //camera movement by mouse
-//walk speed when press wsad
-float camera_speed = 5.0f * delta_time;
-
-
-
+//setting up a camera
+Camera camera = Camera(vec3(0, 0, 5.0));
 int main(){
 	//----------------initiate window and other stuffs-----------------//
 	//glfw initiate and configure
@@ -70,11 +46,6 @@ int main(){
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	//MOUSE_VERTICAL_SENS = 0.01f;
-	//MOUSE_HORIZONTAL_SENS = 0.15f;
-#endif
-
-#ifdef __WINDOWS__
 #endif
 
 	// glfw window creation
@@ -98,12 +69,9 @@ int main(){
 		cout << "Failed to initialize GLAD" << endl;
 		return -1;
 	}
-	
-	//create shader program
-	//the executable file is generated under /bin directory.
-	//however, shader files are under ../resources/shader directory.
-	Shader shader(v_shader_path, f_shader_path);
 
+	Shader shader(v_shader_path, f_shader_path);
+	camera.setMouseVerticalInverse(true);
 	//------------------------Vertices and Data-------------------------//
 	//create VAO
 	unsigned int VAO, VBO;
@@ -149,18 +117,12 @@ int main(){
 
 	//creating model matrix. used to transform local space to world space
 	//this is set in the rendering loop
-	// mat4 model;
-	// model = rotate(model, radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
-
 	//creating view matrix, used to transform world space to user view
 	mat4 view;
 	//creating proejction matrix, used for perspective projection
 	mat4 proj;
 
-	//sent matrices to vertex shader
-	shader.setMat4("proj", proj);
 	mat4 rotation;
-
 	//-------------------------rendering------------------------------------//
 	while(!glfwWindowShouldClose(window))
 	{
@@ -189,11 +151,11 @@ int main(){
 		glBindVertexArray(VAO);
 		//configure model, view, projection
 		//camera rotation
-		view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		proj = perspective(radians(FOV), float(SCR_WIDTH / SCR_HEIGHT), 0.1f, 100.0f);
+		view = camera.getView();
+		proj = perspective(radians(camera.getFOV()), float(SCR_WIDTH / SCR_HEIGHT), 0.1f, 100.0f);
 		shader.setMat4("view", view);
 		shader.setMat4("proj", proj);
-		//cubes rotation
+		//cubes' rotation
 		rotation = rotate(rotation, radians(1.0f), vec3(0.5f, 1.0f, 0.0f));
 		//draw 10 cubes
 		for (int i = 0; i < 10 ; i ++) {

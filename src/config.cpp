@@ -31,7 +31,6 @@ void processInput(GLFWwindow *window){
 	//set input mode
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	camera_speed = 2.5f * delta_time;
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
@@ -41,14 +40,13 @@ void processInput(GLFWwindow *window){
 
 	//walking
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += camera_speed * cameraFront;
+		camera.processKeypad(FORWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= camera_speed * cameraFront;
+		camera.processKeypad(BACKWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * camera_speed;
+		camera.processKeypad(LEFT, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * camera_speed;
-
+		camera.processKeypad(RIGHT, delta_time);
 }
 
 //this callback function is called whenever the window size is changed
@@ -69,36 +67,11 @@ void mouse_callback(GLFWwindow *window, double x, double y){
 	//update current position
 	MOUSE_X = x;
 	MOUSE_Y = y;
-	//std::cout << x_offset << " " << y_offset << std::endl;
-	x_offset *= MOUSE_HORIZONTAL_SENS;
-	y_offset *= MOUSE_VERTICAL_SENS;
-	//update camera direction
-	yaw += MOUSE_HORIZONTAL_INVERSE ? -x_offset : x_offset;
-	pitch += MOUSE_VERTICAL_INVERSE ? -y_offset : y_offset;
-	//std::cout << yaw << " " << pitch << std::endl;
-	//restraints
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = 89.0f;
-	//uodate camera direction
-	glm::vec3 front;
-	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	front.y = sin(glm::radians(pitch));
-	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-
-	//std::cout << front.x << " " << front.y << " " << front.z << std::endl;
-	cameraFront = glm::normalize(front);
-
+	camera.processMouseMovement(x_offset, y_offset);
 }
 
 //call back function whenever mouse is scolled
 //y is the value that mouse scrolled
 void scroll_callback(GLFWwindow *window, double x, double y){
-	if (FOV >= FOV_MIN && FOV <= FOV_MAX)
-		FOV -= y;
-	if (FOV <= FOV_MIN)
-		FOV = FOV_MIN;
-	if (FOV >= FOV_MAX)
-		FOV = FOV_MAX;
+	camera.processMouseScroll(y);
 }
